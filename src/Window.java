@@ -51,6 +51,12 @@ public class Window {
         glfwPollEvents();
     }
 
+    public boolean shouldClose(){
+        return glfwWindowShouldClose(this.windowHandle);
+    }
+
+
+    //Getters
     public long getWindow(){
         return this.windowHandle;
     }

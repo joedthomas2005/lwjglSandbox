@@ -13,7 +13,7 @@ class Main{
         Window window = new Window(800, 600, "window", false, 1);
         window.create();
 
-        while(!glfwWindowShouldClose(window.getWindow())){
+        while(!window.shouldClose()){
             window.update();
         }
     }
