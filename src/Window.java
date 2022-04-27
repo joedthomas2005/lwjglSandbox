@@ -42,7 +42,7 @@ public class Window {
             this.height = newHeight;
             glViewport(0, 0, newWidth, newHeight);
         }));
-
+        
         return true;
     }
 
