@@ -18,27 +18,13 @@ class Main{
 
         Window window = new Window(800, 600, "window", false, 1);
         window.create();
-            
-        float[] VBO = {
-            0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-            -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,
-            -0.5f, 0.5f, 1.0f, 1.0f, 1.0f
-        };
 
-        int[] EBO = {
-            0, 1, 3,
-            3, 2, 1
-        };
-
-        float[] IVBO = {
-            0.5f, 0.5f,
-            -0.5f, 0.5f,
-            0.5f, -0.5f,
-            -0.5f, -0.5f
-        };
-
-        VAO vao = createVao(VBO, EBO, IVBO);
+        GodOfTheSquares Euclid = new GodOfTheSquares();
+        GameObject square = Euclid.createSquare(0f, 0f, 0f, 0.5f, 0.5f,
+         1f, 0f, 0f);
+         
+        Euclid.updateInstanceData();
+        Euclid.uploadInstanceData();
 
         bindShaders("vertShader.vert", "fragShader.frag");
 
@@ -47,26 +33,13 @@ class Main{
         while(!window.shouldClose()){
             glClear(GL_COLOR_BUFFER_BIT);
             
-            vao.use();
-            glDrawElementsInstanced(GL_TRIANGLES, EBO.length, GL_UNSIGNED_INT, 0, 5);
-            
+            Euclid.draw();
+            int err = glGetError();
+            if(err != 0){
+                System.err.println(err);
+            } 
             window.update();
         }
-    }
-
-    static VAO createVao(float[] vertices, int[] indices, float[] instanceData){
-        VAO vao = new VAO(vertices, indices, instanceData);
-        vao.use();
-        vao.uploadIndexData();
-
-        vao.uploadVertexData();
-        vao.addVertexArrayAttribute(0, 2, 5, 0);
-        vao.addVertexArrayAttribute(1, 3, 5, 2);
-        
-        vao.uploadInstanceData();
-        vao.addInstanceArrayAttribute(2, 2, 2, 0);
-
-        return vao;
     }
 
     static int bindShaders(String vertexShader, String fragmentShader) throws IOException{
