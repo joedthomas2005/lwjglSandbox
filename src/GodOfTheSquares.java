@@ -48,10 +48,14 @@ public class GodOfTheSquares {
         return square;
     }
 
+
     public void updateInstanceData(){
         boolean updated = false;
         for(GameObject rect: rects){
             updated = updated || rect.updated;
+            if(rect.updated){
+                rect.generateMatrix();
+            }
         }
 
         if(updated){
@@ -60,10 +64,12 @@ public class GodOfTheSquares {
                 this.instances.add(new ObjectInstance(rect.getTransform(), rect.getColor()));
                 rect.updated = false;
             }
+
+            uploadInstanceData();
         }
     }
 
-    public void uploadInstanceData(){
+    private void uploadInstanceData(){
         ArrayList<Float> bufferData = new ArrayList<Float>();
         for(ObjectInstance instance : this.instances){
             for(float f : instance.toFloatArray()){
@@ -78,7 +84,7 @@ public class GodOfTheSquares {
         vao.uploadInstanceData(0);
     }
 
-    public void draw(){
+    public void drawAll(){
         vao.draw(instances.size());
     }
 }

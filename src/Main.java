@@ -4,6 +4,8 @@ import static org.lwjgl.opengl.GL33.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Random;
 
 
 
@@ -16,29 +18,45 @@ class Main{
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        Window window = new Window(800, 600, "window", false, 1);
+        Window window = new Window(1366, 768, "window", true, 1);
         window.create();
 
         GodOfTheSquares Euclid = new GodOfTheSquares();
-        GameObject square = Euclid.createSquare(0f, 0f, 0f, 0.5f, 0.5f,
-         1f, 0f, 0f);
-         
-        Euclid.updateInstanceData();
-        Euclid.uploadInstanceData();
+        ArrayList<GameObject> squares = new ArrayList<GameObject>();
 
         bindShaders("vertShader.vert", "fragShader.frag");
-
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
+        Random r = new Random();
+        squares.add(Euclid.createSquare(0, 0, 0, 0.2f, 0.2f, 1, 0, 0));
+        final float GRAVITY = -9.8f;
+
+        float time = (float)glfwGetTime();
+        float lastTime = (float)glfwGetTime();
+        float delta = 0f;
         while(!window.shouldClose()){
+            time = (float)glfwGetTime();
+            delta = time - lastTime;
+
             glClear(GL_COLOR_BUFFER_BIT);
-            
-            Euclid.draw();
-            int err = glGetError();
-            if(err != 0){
-                System.err.println(err);
-            } 
+
+            for(GameObject square: squares){
+                square.velocity += GRAVITY * delta;
+                square.move(0.0f, square.velocity * delta);
+                //square.rotate(0.01f);
+                if(square.getY() < -0.9 || square.getY() > 0.9f){
+                    square.velocity *= -1;
+                    square.move(0.0f, square.velocity * delta);
+                }
+            }
+
+            squares.add(Euclid.createSquare(
+                0, 0.5f, 0, 0.2f, 0.2f, r.nextFloat(), r.nextFloat(), r.nextFloat()));
+        
+            Euclid.updateInstanceData();
+            Euclid.drawAll();
             window.update();
+            lastTime = time;
         }
     }
 
