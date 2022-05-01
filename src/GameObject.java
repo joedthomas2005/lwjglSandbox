@@ -1,8 +1,7 @@
-import org.joml.*;
 public class GameObject {
     
-    private Matrix4f transform = new Matrix4f();
-    private Vector3f color = new Vector3f();
+    private Matrix transform = Matrix.Identity(4);
+    private float[] color = new float[3];
     public boolean updated;
     private float x, y, rot, width, height;
     public float velocity;
@@ -16,15 +15,15 @@ public class GameObject {
         this.width = width;
         this.height = height;
         this.updated = true;
-        this.transform = new Matrix4f()
+        this.transform = Matrix.Identity(4)
             .translate(x, y, 0)
-            .rotateXYZ(0, 0, rot)
+            .rotate(0, 0, rot)
             .scale(width, height, 1);
-        this.color = new Vector3f(r, g, b);
+        this.color = new float[]{r, g, b};
         this.velocity = 0f;
     }
 
-    public Matrix4f getTransform(){
+    public Matrix getTransform(){
         return this.transform;
     }
 
@@ -32,7 +31,7 @@ public class GameObject {
         return this.velocity;
     }
 
-    public Vector3f getColor(){
+    public float[] getColor(){
         return this.color;
     }
 
@@ -56,9 +55,9 @@ public class GameObject {
     }
 
     public void generateMatrix(){
-        this.transform = new Matrix4f()
+        this.transform = Matrix.Identity(4)
         .translate(x, y, 0)
-        .rotateXYZ(0, 0, rot)
+        .rotate(0, 0, rot)
         .scale(width, height, 1);
     }
     
