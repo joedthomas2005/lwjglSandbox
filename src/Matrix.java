@@ -1,5 +1,9 @@
 import java.util.ArrayList;
 
+/**
+ * An any-sized matrix stored in row major notation.
+ * (Bear in mind that openGL uses column major so .transpose() must be called before sending the data to the render program.) 
+ */
 public class Matrix {
     private float[][] matrix;
     private int rows;
@@ -10,6 +14,10 @@ public class Matrix {
         this.columns = values[0].length;
     }
 
+    
+    /** 
+     * @return a String representation of this matrix
+     */
     @Override
     public String toString(){
         String string = "";
@@ -22,6 +30,12 @@ public class Matrix {
         return string;
     }
 
+    
+    /** 
+     * Adds this matrix (left) and another given matrix (right) and returns the resultant matrix.
+     * @param other the right hand matrix to add
+     * @return the resultant Matrix
+     */
     public Matrix add(Matrix other){
         float[][] result = new float[rows][columns];
         for(int i = 0; i < rows; i++){
@@ -32,6 +46,12 @@ public class Matrix {
         return new Matrix(result);
     }
 
+    
+    /** 
+     * Multiplies this matrix (left) and another given matrix (right) and returns the resultant matrix.
+     * @param other the right hand matrix to multiply
+     * @return the resultant Matrix 
+     */
     public Matrix multiply(Matrix other){
         float[][] result = new float[rows][columns];
         for(int row = 0; row < rows; row++){
@@ -46,6 +66,12 @@ public class Matrix {
         return new Matrix(result);
     }
 
+    
+    /** 
+     * Construct an NxN sized identity matrix
+     * @param rows
+     * @return Matrix
+     */
     public static Matrix Identity(int rows){
 
         float[][] result = new float[rows][rows];
@@ -60,6 +86,14 @@ public class Matrix {
         return new Matrix(result);
     }
     
+    
+    /** 
+     * Construct a transform matrix for a given 3D translation.
+     * @param x
+     * @param y
+     * @param z
+     * @return Matrix
+     */
     public static Matrix Translation(float x, float y, float z){
         Matrix result = Identity(4);
         result.matrix[0][3] = x;
@@ -68,6 +102,14 @@ public class Matrix {
         return result;
     }
 
+    
+    /** 
+     * Construct a transform matrix for a given 3D scale.
+     * @param x
+     * @param y
+     * @param z
+     * @return Matrix
+     */
     public static Matrix Scaling(float x, float y, float z){
         Matrix result = Identity(4);
         result.matrix[0][0] = x;
@@ -76,6 +118,14 @@ public class Matrix {
         return result;
     }
 
+    
+    /** 
+     * Construct a transform matrix for a given 3D rotation.
+     * @param pitch rotation around the x axis
+     * @param yaw rotation around the y axis
+     * @param roll rotation around the z axis
+     * @return Matrix
+     */
     public static Matrix Rotation(float pitch, float yaw, float roll){
         
         float pitchCosine = (float) Math.cos(Math.toRadians(pitch));
@@ -109,6 +159,17 @@ public class Matrix {
         return pitchMatrix.multiply(yawMatrix).multiply(rollMatrix);
     }
 
+    
+    /** 
+     * Construct an orthographic projection matrix for a given viewport
+     * @param left the x coordinate to map to the left of the screen
+     * @param right the x coordinate to map to the right of the screen
+     * @param bottom the y coordinate to map to the bottom of the screen
+     * @param top the y coordinate to map to the top of the screen
+     * @param near the near clipping pane
+     * @param far the far clipping pane
+     * @return Matrix
+     */
     public static Matrix Ortho(float left, float right, float bottom, float top, float near, float far){
         return Matrix.Identity(4).translate(
             -((right + left)/(right - left)),
@@ -121,6 +182,11 @@ public class Matrix {
         );
 
     }
+    
+    /** 
+     * Return a transposed column-major version of this matrix. 
+     * @return Matrix
+     */
     public Matrix transpose(){
         float[][] result = new float[columns][rows];
         for(int i = 0; i < rows; i++){
@@ -131,18 +197,47 @@ public class Matrix {
         return new Matrix(result);
     }
 
+    
+    /** 
+     * Return this matrix multiplied by a transform matrix with a given translation.
+     * @param x
+     * @param y
+     * @param z
+     * @return Matrix
+     */
     public Matrix translate(float x, float y, float z){
         return this.multiply(Matrix.Translation(x, y, z));
     }
 
+    
+    /** 
+     * Return this matrix multiplied by a transform matrix with a given rotation.
+     * @param pitch
+     * @param yaw
+     * @param roll
+     * @return Matrix
+     */
     public Matrix rotate(float pitch, float yaw, float roll){
         return this.multiply(Matrix.Rotation(pitch, yaw, roll));
     }
 
+    
+    /** 
+     * Return this matrix multiplied by a transform matrix with a given scale.
+     * @param x
+     * @param y
+     * @param z
+     * @return Matrix
+     */
     public Matrix scale(float x, float y, float z){
         return this.multiply(Matrix.Scaling(x, y, z));
     }
 
+    
+    /** 
+     * Return this matrix in an float array read across from the top left. 
+     * @return float[]
+     */
     public float[] toArray(){
         ArrayList<Float> data = new ArrayList<Float>();
         for(int i = 0; i < rows; i++){

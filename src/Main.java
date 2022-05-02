@@ -16,42 +16,64 @@ class Main{
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        Window window = new Window(900, 800, "window", false, 1);
+        Window window = new Window(900, 800, "window", false, 1, 1.0f, 1.0f, 1.0f);
         window.create();
-
-        Renderer squareRenderer = Renderer.SquareRenderer();
-        ArrayList<GameObject> squares = new ArrayList<GameObject>();
+        Input.enable(window);
 
         ShaderProgram shader = new ShaderProgram("vertShader.vert", "fragShader.frag");
         shader.create();
         shader.use();
-        OrthoCamera2D camera = new OrthoCamera2D(0, 0, 900, 800, shader.getID());
         
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        OrthoCamera2D camera = new OrthoCamera2D(0, 0, 900, 800, shader.getID());
+        camera.uploadProjectionUniform();
+        
+        InstancedRenderer squareRenderer = InstancedRenderer.SquareRenderer();
+        PhysicsObject squareA = new PhysicsObject(squareRenderer.create(200, 400, 0, 20, 20, 1, 0, 0), 1f);
+        PhysicsObject squareB = new PhysicsObject(squareRenderer.create(700, 400, 0, 20, 20, 1, 0, 0), 1f);
+        double time = glfwGetTime();
+        double lastTime = glfwGetTime();
 
-        Random r = new Random();
-
-        GameObject square = squareRenderer.create(900/2, 800/2, 0, 500, 500, 1, 0, 0);
-        final float GRAVITY = -9.8f;
-        float time = (float)glfwGetTime();
-        float lastTime = (float)glfwGetTime();
-        float delta = 0f;
-
+        
         while(!window.shouldClose()){
-            time = (float)glfwGetTime();
-            delta = time - lastTime;
+            time = glfwGetTime();
+            float delta = (float) (time - lastTime);
             glClear(GL_COLOR_BUFFER_BIT);   
             //Game logic goes here:
+            squareA.reset();
+            squareB.reset();
+            
+            //Friction
+            //squareA.xForce -= 1f * squareA.xVelocity * squareA.xVelocity * (squareA.xVelocity > 0 ? 1 : -1);
+            //squareB.xForce -= 1f * squareB.xVelocity * squareB.xVelocity * (squareB.xVelocity > 0 ? 1 : -1); 
+            
+            if(Input.keyPressedDown(GLFW_KEY_RIGHT)){
+                squareA.xForce += 200f;
+            }
+            if(Input.keyPressedDown(GLFW_KEY_LEFT)){
+                squareA.xForce -= 200f;
+            }
+            
+            if(squareA.isColliding(squareB)){
+                squareB.xForce += 1/2 * squareA.xVelocity * squareA.mass;
+                squareA.xForce -= 1/2 * squareA.xVelocity * squareA.mass;
+            }
 
+            System.out.println(squareA.xForce + ", " + squareA.xVelocity);
+            squareA.move(delta);
+            squareB.move(delta);
 
+            if(Input.keyPressedDown(GLFW_KEY_ESCAPE)){
+                window.close();
+            }
             //Update gl buffers and uniforms
-            camera.updateShaderData();
+            camera.uploadViewUniform();
             squareRenderer.updateInstanceData();
             //Draw calls
             squareRenderer.drawAll();
-            //Flip window buffers
+            //Flip window buffers and poll input
             window.update();
             lastTime = time;
         }
+        window.end();
     }
 }

@@ -4,11 +4,15 @@ import java.nio.file.Files;
 
 import static org.lwjgl.opengl.GL33.*;
 
+/**
+ * A shader program consists of a vertex and fragment shader. This class creates an 
+ * openGL shader program from a vertex and fragment shader path. 
+ */
 public class ShaderProgram {
     
     private String vertexPath;
     private String fragPath;
-    private String vertexSource = 
+    private String vertexSource = //Default fallback vertex shader 
     """
         #version 330 core
         layout(location = 0) in vec2 aPosition;
@@ -27,7 +31,7 @@ public class ShaderProgram {
         }
             """;
 
-    private String fragSource = 
+    private String fragSource = //Default fallback fragment shader
     """
         #version 330 core
         in vec3 color;
@@ -46,6 +50,10 @@ public class ShaderProgram {
         this.fragPath = fragmentShaderPath;
     }
 
+    /**
+     * Create an openGL shader program and return its program ID.
+     * @return the created program ID.
+     */
     public int create(){
         System.out.println("STARTED SHADER BINDING: " + glGetError());
         System.out.println("LOADING SHADER SOURCE");
@@ -95,10 +103,16 @@ public class ShaderProgram {
         return program;        
     }
 
+    /**
+     * Enable this shader program in the openGL context. 
+     */
     public void use(){
         glUseProgram(programID);
     }
 
+    /**
+     * @return this shader program's openGL ID.
+     */
     public int getID(){
         return this.programID;
     }
