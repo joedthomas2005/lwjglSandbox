@@ -5,12 +5,11 @@
 public class GameObject {
     
     private Matrix transform = Matrix.Identity(4);
-    private float[] color = new float[3];
+    private int texture = 0;
     public boolean updated;
     private float x, y, rot, width, height;
 
-    public GameObject(float x, float y, float rot, float width, float height, 
-    float r, float g, float b){
+    public GameObject(float x, float y, float rot, float width, float height, int texture){
     
         this.x = x;
         this.y = y;
@@ -22,7 +21,7 @@ public class GameObject {
             .translate(x, y, 0)
             .rotate(0, 0, rot)
             .scale(width, height, 1);
-        this.color = new float[]{r, g, b};
+        this.texture = texture;
     }
 
     
@@ -34,10 +33,10 @@ public class GameObject {
     }
     
     /** 
-     * @return this object's color (an array of 3 floats)
+     * @return this object's texture (an index on a texture sheet)
      */
-    public float[] getColor(){
-        return this.color;
+    public int getTexture(){
+        return this.texture;
     }
 
     
@@ -52,7 +51,11 @@ public class GameObject {
         this.updated = true;
     }
 
-    
+    public void move(Vector movement){
+        this.x += movement.getX();
+        this.y += movement.getY();
+        this.updated = true;
+    }
     /** 
      * Update the object's rotation and set its update flag to true. Does not regenerate the transform matrix.
      * @param rot
@@ -69,7 +72,6 @@ public class GameObject {
     public float getY(){
         return this.y;
     }
-
     
     /** 
      * @return the object's current x position (float)

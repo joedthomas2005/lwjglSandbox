@@ -66,6 +66,24 @@ public class Matrix {
         return new Matrix(result);
     }
 
+    public Vector multiply(Vector vector){
+        if(vector.items.length != this.columns){
+            System.err.println("INVALID MATRIX VECTOR MULTIPLICATION ATTEMPTED");
+            return vector;
+        }
+        else{
+            float[] items = new float[vector.items.length];
+            for(int i = 0; i < items.length; i++){
+                items[i] = 0;
+            }
+            for(int row = 0; row < this.rows; row++){
+                for(int column = 0; column < this.columns; column++){
+                    items[row] += this.matrix[row][column] * vector.items[column];
+                }
+            }
+            return new Vector(items);
+        }
+    }
     
     /** 
      * Construct an NxN sized identity matrix

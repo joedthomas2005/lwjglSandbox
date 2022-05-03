@@ -11,28 +11,33 @@ import static org.lwjgl.opengl.GL33.glGetError;
  */
 public class InstancedRenderer {
     private VAO vao;
-
+    private TextureAtlas textureSheet;
     private ArrayList<ObjectInstance> instances = new ArrayList<ObjectInstance>(); //This contains the data for the attrib arrays for each object
     private ArrayList<GameObject> objects = new ArrayList<GameObject>();           //This contains references to the actual objects themselves
 
-    public InstancedRenderer(float[] vertices, int[] indices){
-
+    public InstancedRenderer(float[] vertices, int[] indices, TextureAtlas textureSheet){
+        
+        this.textureSheet = textureSheet;
         System.out.println("SETTING UP NEW VAO");
         vao = new VAO(vertices, indices, 1);
         //Bind VAO
         vao.use();
         //Upload VBO and set attributes
         vao.uploadVertexData();
-        vao.addVertexArrayAttribute(0, 2, 2, 0); //x, y unit vertices
+        vao.addVertexArrayAttribute(0, 2, 4, 0); //x, y unit vertices
+        vao.addVertexArrayAttribute(1, 2, 4, 2); //x, y tex coords
         //Upload instance array and set attributes
         vao.uploadInstanceData(0);
         //Transform matrix
-        vao.addInstanceArrayAttribute(0, 1, 4, 19, 0); 
-        vao.addInstanceArrayAttribute(0, 2, 4, 19, 4);
-        vao.addInstanceArrayAttribute(0, 3, 4, 19, 8);
-        vao.addInstanceArrayAttribute(0, 4, 4, 19, 12);
-        //Color vector
-        vao.addInstanceArrayAttribute(0, 5, 3, 19, 16);
+        vao.addInstanceArrayAttribute(0, 2, 4, 32, 0); 
+        vao.addInstanceArrayAttribute(0, 3, 4, 32, 4);
+        vao.addInstanceArrayAttribute(0, 4, 4, 32, 8);
+        vao.addInstanceArrayAttribute(0, 5, 4, 32, 12);
+        //Texture transform matrix
+        vao.addInstanceArrayAttribute(0, 6, 4, 32, 16);
+        vao.addInstanceArrayAttribute(0, 7, 4, 32, 20);
+        vao.addInstanceArrayAttribute(0, 8, 4, 32, 24);
+        vao.addInstanceArrayAttribute(0, 9, 4, 32, 28);
         //Upload index array (EBO)
         vao.uploadIndexData();
 
@@ -48,16 +53,16 @@ public class InstancedRenderer {
      * Construct a premade InstancedRenderer with the vertex and index data for a square.
      * @return an InstancedRenderer
      */
-    public static InstancedRenderer SquareRenderer(){
+    public static InstancedRenderer SquareRenderer(TextureAtlas textureSheet){
         return new InstancedRenderer(new float[]{
-            0.5f, 0.5f,
-            0.5f, -0.5f,
-            -0.5f, -0.5f,
-            -0.5f, 0.5f
+            0.5f, 0.5f, 1.0f, 1.0f,
+            0.5f, -0.5f, 1.0f, 0.0f,
+            -0.5f, -0.5f, 0.0f, 0.0f,
+            -0.5f, 0.5f, 0.0f, 1.0f
         }, new int[]{
             0, 1, 3,
             3, 2, 1
-        });
+        }, textureSheet);
     }
 
     /**
@@ -72,8 +77,8 @@ public class InstancedRenderer {
      * @param b
      * @return the created GameObject
      */
-    public GameObject create(float x, float y, float rot, float width, float height, float r, float g, float b){
-        GameObject object = new GameObject(x, y, rot, width, height, r, g, b);
+    public GameObject create(float x, float y, float rot, float width, float height, int texture){
+        GameObject object = new GameObject(x, y, rot, width, height, texture);
         objects.add(object);
         return object;
     }
@@ -94,7 +99,7 @@ public class InstancedRenderer {
         if(updated){
             this.instances.clear();
             for(GameObject object : objects){
-                this.instances.add(new ObjectInstance(object));
+                this.instances.add(new ObjectInstance(object, textureSheet));
                 object.updated = false;
             }
             uploadInstanceData();

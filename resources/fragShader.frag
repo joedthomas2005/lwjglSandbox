@@ -1,8 +1,12 @@
 #version 330 core
-in vec3 color;
+in mat4 texTransform;
+in vec2 texCoord;
 
 out vec4 FragColor;
+uniform sampler2D textureSheet;
 
 void main(){
-    FragColor = vec4(color, 1.0);
+
+    vec4 transformedTexCoord = texTransform * vec4(texCoord, 0, 1);
+    FragColor = texture(textureSheet, vec2(transformedTexCoord.x, transformedTexCoord.y));
 }
