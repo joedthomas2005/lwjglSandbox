@@ -11,16 +11,12 @@ import static org.lwjgl.opengl.GL33.glGetError;
  */
 public class InstancedRenderer {
     private VAO vao;
-    private final float[] vertices;
-    private final int[] indices;
 
     private ArrayList<ObjectInstance> instances = new ArrayList<ObjectInstance>(); //This contains the data for the attrib arrays for each object
     private ArrayList<GameObject> objects = new ArrayList<GameObject>();           //This contains references to the actual objects themselves
 
     public InstancedRenderer(float[] vertices, int[] indices){
 
-        this.vertices = vertices;
-        this.indices = indices;
         System.out.println("SETTING UP NEW VAO");
         vao = new VAO(vertices, indices, 1);
         //Bind VAO

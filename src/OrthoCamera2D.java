@@ -32,7 +32,7 @@ public class OrthoCamera2D {
     public void move(float x, float y){
         this.x -= x;
         this.y -= y;
-        this.view = Matrix.Translation(x, y, 0);
+        this.view = Matrix.Translation(this.x, this.y, 0);
         this.updated = true;
     }
 

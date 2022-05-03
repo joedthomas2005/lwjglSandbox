@@ -2,10 +2,6 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL33.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Random;
-
-
 
 class Main{
     public static void main(String[] args) throws IOException{
@@ -28,8 +24,6 @@ class Main{
         camera.uploadProjectionUniform();
         
         InstancedRenderer squareRenderer = InstancedRenderer.SquareRenderer();
-        PhysicsObject squareA = new PhysicsObject(squareRenderer.create(200, 400, 0, 20, 20, 1, 0, 0), 1f);
-        PhysicsObject squareB = new PhysicsObject(squareRenderer.create(700, 400, 0, 20, 20, 1, 0, 0), 1f);
         double time = glfwGetTime();
         double lastTime = glfwGetTime();
 
@@ -39,28 +33,6 @@ class Main{
             float delta = (float) (time - lastTime);
             glClear(GL_COLOR_BUFFER_BIT);   
             //Game logic goes here:
-            squareA.reset();
-            squareB.reset();
-            
-            //Friction
-            //squareA.xForce -= 1f * squareA.xVelocity * squareA.xVelocity * (squareA.xVelocity > 0 ? 1 : -1);
-            //squareB.xForce -= 1f * squareB.xVelocity * squareB.xVelocity * (squareB.xVelocity > 0 ? 1 : -1); 
-            
-            if(Input.keyPressedDown(GLFW_KEY_RIGHT)){
-                squareA.xForce += 200f;
-            }
-            if(Input.keyPressedDown(GLFW_KEY_LEFT)){
-                squareA.xForce -= 200f;
-            }
-            
-            if(squareA.isColliding(squareB)){
-                squareB.xForce += 1/2 * squareA.xVelocity * squareA.mass;
-                squareA.xForce -= 1/2 * squareA.xVelocity * squareA.mass;
-            }
-
-            System.out.println(squareA.xForce + ", " + squareA.xVelocity);
-            squareA.move(delta);
-            squareB.move(delta);
 
             if(Input.keyPressedDown(GLFW_KEY_ESCAPE)){
                 window.close();
