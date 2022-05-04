@@ -11,24 +11,26 @@ public class TextureAtlas {
     private int width = 0;
     private int height = 0;
     private int channels = 0;
+    private int index;
     private float columnWidth = 0;
     private float rowHeight = 0;
     private int ID = 0; 
+    private ByteBuffer data;
 
-    public TextureAtlas(String path, int numberOfColumns, int numberOfRows){
+    public TextureAtlas(String path, int numberOfColumns, int numberOfRows, int index){
         this.path = path;
         this.columns = numberOfColumns;
         this.rows = numberOfRows;
-
+        this.index = index;
         this.columnWidth = 1.0f / columns;
         this.rowHeight = 1.0f / rows;
     }
 
-    public int load(){
+    public int load(int shaderProg){
 
         int[] widthB = {0}, heightB = {0}, channelsB = {0};
         stbi_set_flip_vertically_on_load(true);
-        ByteBuffer data = stbi_load(this.path, widthB, heightB, channelsB, 4);
+        data = stbi_load(this.path, widthB, heightB, channelsB, 4);
         data.flip();
         this.width = widthB[0];
         this.height = heightB[0];
@@ -38,11 +40,24 @@ public class TextureAtlas {
         glBindTexture(GL_TEXTURE_2D, ID);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
-
-        stbi_image_free(data);
-        data.clear();
+        glUniform1i(glGetUniformLocation(shaderProg, "aTexture["+(ID)+"]"), ID);
+        
+        int err = glGetError();
+        if(err != 0){
+            System.err.println("ERROR CREATING TEXTURE ATLAS: " + err);
+        }
 
         return ID;
+
+    }
+
+    public void bind(){
+        glActiveTexture(GL_TEXTURE0 + ID);
+        glBindTexture(GL_TEXTURE_2D, ID);
+    }
+    public void use(){
+        glBindTexture(GL_TEXTURE_2D, ID);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     }
 
     public Matrix getMatrix(int texture){
@@ -57,4 +72,7 @@ public class TextureAtlas {
         return Matrix.Translation(textureX * columnWidth, textureY * rowHeight, 0).scale(columnWidth, rowHeight, 1);
     }
 
+    public int getID(){
+        return this.ID;
+    }
 }

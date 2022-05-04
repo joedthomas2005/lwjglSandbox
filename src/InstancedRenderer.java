@@ -1,5 +1,8 @@
 import java.util.ArrayList;
-import static org.lwjgl.opengl.GL33.glGetError;
+
+import org.w3c.dom.Text;
+
+import static org.lwjgl.opengl.GL33.*;
 
 /**
  * This renderer draws a set of vertices and indices using openGL instancing, meaning that 
@@ -23,7 +26,7 @@ public class InstancedRenderer {
         //Bind VAO
         vao.use();
         //Upload VBO and set attributes
-        vao.uploadVertexData();
+        vao.uploadVertexData(GL_STATIC_DRAW);
         vao.addVertexArrayAttribute(0, 2, 4, 0); //x, y unit vertices
         vao.addVertexArrayAttribute(1, 2, 4, 2); //x, y tex coords
         //Upload instance array and set attributes
@@ -39,7 +42,7 @@ public class InstancedRenderer {
         vao.addInstanceArrayAttribute(0, 8, 4, 32, 24);
         vao.addInstanceArrayAttribute(0, 9, 4, 32, 28);
         //Upload index array (EBO)
-        vao.uploadIndexData();
+        vao.uploadIndexData(GL_STATIC_DRAW);
 
         int err = glGetError();
         if(err != 0){
@@ -77,8 +80,8 @@ public class InstancedRenderer {
      * @param b
      * @return the created GameObject
      */
-    public GameObject create(float x, float y, float rot, float width, float height, int texture){
-        GameObject object = new GameObject(x, y, rot, width, height, texture);
+    public GameObject create(float x, float y, float rot, float width, float height, int texture, TextureAtlas atlas){
+        GameObject object = new GameObject(x, y, rot, width, height, texture, atlas);
         objects.add(object);
         return object;
     }
@@ -87,7 +90,7 @@ public class InstancedRenderer {
      * Update all objects' transform matrices if they have been updated since the last draw call, then 
      * if any of them have been updated, regenerate the array of objectInstances with the new data. 
      */
-    public void updateInstanceData(){
+    private void updateInstanceData(){
         boolean updated = false;
         for(GameObject object : objects){
             updated = object.updated || updated;
@@ -109,7 +112,7 @@ public class InstancedRenderer {
     /**
      * Send the stored instance data to the instance VBO target. 
      */
-    public void uploadInstanceData(){
+    private void uploadInstanceData(){
         ArrayList<Float> bufferData = new ArrayList<Float>();
         for(ObjectInstance instance : instances){
             for(float f : instance.toFloatArray()){
@@ -129,6 +132,7 @@ public class InstancedRenderer {
      * Instanced draw all objects created by this renderer.
      */
     public void drawAll(){
+        updateInstanceData();
         vao.drawInstanced(instances.size());
     }
 }

@@ -1,3 +1,5 @@
+import org.w3c.dom.Text;
+
 /**
  * An abstract thing with spacial position, rotation and size and a color value.
  * It contains a transform matrix.
@@ -6,10 +8,11 @@ public class GameObject {
     
     private Matrix transform = Matrix.Identity(4);
     private int texture = 0;
+    private TextureAtlas textureAtlas;
     public boolean updated;
     private float x, y, rot, width, height;
 
-    public GameObject(float x, float y, float rot, float width, float height, int texture){
+    public GameObject(float x, float y, float rot, float width, float height, int texture, TextureAtlas textureAtlas){
     
         this.x = x;
         this.y = y;
@@ -22,6 +25,7 @@ public class GameObject {
             .rotate(0, 0, rot)
             .scale(width, height, 1);
         this.texture = texture;
+        this.textureAtlas = textureAtlas;
     }
 
     
@@ -39,7 +43,19 @@ public class GameObject {
         return this.texture;
     }
 
-    
+    public void setTexture(int texture){
+        this.texture = texture;
+        this.updated = true;
+    }
+
+    public TextureAtlas getTextureAtlas(){
+        return this.textureAtlas;
+    }
+
+    public void setTextureAtlas(TextureAtlas atlas){
+        this.textureAtlas = atlas;
+        this.updated = true;
+    }
     /** 
      * Update the object's position and set its update flag to true. Does not regenerate the transform matrix.
      * @param x

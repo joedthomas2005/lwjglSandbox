@@ -52,13 +52,20 @@ public class VAO {
     public void setInstanceArrayData(int array, float[] data){
         this.instanceData.set(array, data);
     }
+
+    public void setVertexArrayData(float[] data){
+        this.vertices = data;
+    }
     
+    public void setIndexArrayData(int[] data){
+        this.indices = data;
+    }
     /**
      * Bind the VBO buffer to the GL_ARRAY_BUFFER target and send the stored vertex data.
      */
-    public void uploadVertexData(){        
+    public void uploadVertexData(int type){        
         glBindBuffer(GL_ARRAY_BUFFER, this.VBO);
-        glBufferData(GL_ARRAY_BUFFER, this.vertices, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, this.vertices, type);
     }
 
     /**
@@ -85,9 +92,9 @@ public class VAO {
     /**
      * Bind the EBO buffer to the GL_ELEMENT_ARRAY_BUFFER target and upload the stored index data.
      */
-    public void uploadIndexData(){
+    public void uploadIndexData(int type){
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this.EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, this.indices, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, this.indices, type);
     }
 
     /**
@@ -127,6 +134,10 @@ public class VAO {
      */
     public void drawInstanced(int count){
         glDrawElementsInstanced(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0, count);
+    }
+
+    public void drawIndexed(){
+        glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
     }
 
 }
