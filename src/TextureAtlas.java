@@ -35,10 +35,12 @@ public class TextureAtlas {
         data.flip();
         this.width = widthB[0];
         this.height = heightB[0];
-
         ID = glGenTextures();
+
         glBindTexture(GL_TEXTURE_2D, ID);
+
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
         glGenerateMipmap(GL_TEXTURE_2D);
         glUniform1i(glGetUniformLocation(shaderProgram, "aTexture["+(ID)+"]"), ID);
         
