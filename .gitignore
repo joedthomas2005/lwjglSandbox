@@ -1,3 +1,10 @@
 bin/
 lib/
 lib/*
+.idea/
+.idea/*
+.vscode/
+.vscode/*
+out/
+out/*
+lwjglSandbox.iml

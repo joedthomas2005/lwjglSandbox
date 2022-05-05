@@ -12,13 +12,13 @@ public class Window {
     private int width;
     private int height;
     private boolean fullscreen;
-    private int swapInterval;
-    private String title;
+    private final int swapInterval;
+    private final String title;
     private long windowHandle = 0L;
     private long monitorHandle = 0L;
-    private float r;
-    private float g;
-    private float b;
+    private final float r;
+    private final float g;
+    private final float b;
 
     public Window(int width, int height, String title, boolean fullscreen, int swapInterval, float r, float g, float b) {
     
@@ -36,15 +36,14 @@ public class Window {
     }
 
     /**
-     * Create the glfw window and context and load GLCapabilities. 
-     * @return successful
+     * Create the glfw window and context and load GLCapabilities.
      */
-    public boolean create() {
+    public void create() {
         this.windowHandle = glfwCreateWindow(this.width, this.height, this.title, this.monitorHandle, 0);
         
         if (this.windowHandle == 0) {
             glfwTerminate();
-            return false;
+            return;
         }
         
         glfwMakeContextCurrent(this.windowHandle);
@@ -60,8 +59,6 @@ public class Window {
         
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        
-        return true;
     }
 
     /**
@@ -116,4 +113,7 @@ public class Window {
         return this.monitorHandle;
     }
 
+    public void setFullscreen(boolean fullscreen){
+        this.fullscreen = fullscreen;
+    }
 }

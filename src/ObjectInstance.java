@@ -6,18 +6,21 @@
  * an actual manipulatable gameObject.
  */
 public class ObjectInstance {
-    public Matrix transform = Matrix.Identity(4);
-    public Matrix textureTransform = Matrix.Identity(4);
-    public static final int length = 19;
+    public Matrix transform;
+    public Matrix textureTransform;
+    public int textureAtlas;
+    public static final int length = 33;
     
-    public ObjectInstance(Matrix transform, Matrix textureTransform){
+    public ObjectInstance(Matrix transform, Matrix textureTransform, int textureAtlas){
         this.transform = transform;
         this.textureTransform = textureTransform;
+        this.textureAtlas = textureAtlas;
     }
 
-    public ObjectInstance(GameObject object, TextureAtlas textureSheet){
+    public ObjectInstance(GameObject object){
         this.transform = object.getTransform();
-        this.textureTransform = textureSheet.getMatrix(object.getTexture());
+        this.textureTransform = object.getTextureAtlas().getMatrix(object.getTexture());
+        this.textureAtlas = object.getTextureAtlas().getID();
     }
 
     
@@ -31,13 +34,14 @@ public class ObjectInstance {
         float[] transformArray = transform.transpose().toArray();
         float[] textureArray = textureTransform.transpose().toArray();
 
-        float[] data = new float[32];
+        float[] data = new float[33];
         for(int i = 0; i < transformArray.length; i++){
             data[i] = transformArray[i];
         }
         for(int i = 0; i < textureArray.length; i++){
             data[i+16] = textureArray[i];
         }
+        data[32] = textureAtlas;
 
         return data;
     }

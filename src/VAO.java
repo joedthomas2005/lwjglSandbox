@@ -14,12 +14,12 @@ public class VAO {
     private final int ID;
     private final int VBO;
     private final int EBO;
-    private final int[] INSTANCEBUFFERS;
+    private final int[] InstanceBuffers;
 
     private float[] vertices;
     private int[] indices;
     
-    private ArrayList<float[]> instanceData = new ArrayList<float[]>();
+    private final ArrayList<float[]> instanceData = new ArrayList<>();
     
     public VAO(float[] vertices, int[] indices, int instanceArrayCount){
         
@@ -30,9 +30,9 @@ public class VAO {
         this.VBO = glGenBuffers();
         this.EBO = glGenBuffers();
 
-        this.INSTANCEBUFFERS = new int[instanceArrayCount];
+        this.InstanceBuffers = new int[instanceArrayCount];
         for(int i = 0; i < instanceArrayCount; i++){
-            this.INSTANCEBUFFERS[i] = glGenBuffers();
+            this.InstanceBuffers[i] = glGenBuffers();
             this.instanceData.add(i, new float[]{});
         }
     }
@@ -73,8 +73,8 @@ public class VAO {
      */
     public void uploadAllInstanceData(){
         
-        for(int i = 0; i < INSTANCEBUFFERS.length; i++){
-            glBindBuffer(GL_ARRAY_BUFFER, this.INSTANCEBUFFERS[i]);
+        for(int i = 0; i < InstanceBuffers.length; i++){
+            glBindBuffer(GL_ARRAY_BUFFER, this.InstanceBuffers[i]);
             glBufferData(GL_ARRAY_BUFFER, this.instanceData.get(i), GL_DYNAMIC_DRAW);
         }
     }
@@ -85,7 +85,7 @@ public class VAO {
      * @param array the index of the array to upload
      */
     public void uploadInstanceData(int array){
-        glBindBuffer(GL_ARRAY_BUFFER, this.INSTANCEBUFFERS[array]);
+        glBindBuffer(GL_ARRAY_BUFFER, this.InstanceBuffers[array]);
         glBufferData(GL_ARRAY_BUFFER, this.instanceData.get(array), GL_DYNAMIC_DRAW);
     }
 
@@ -108,7 +108,7 @@ public class VAO {
     public void addVertexArrayAttribute(int index, int size, int stride, int start){
         glBindBuffer(GL_ARRAY_BUFFER, this.VBO);
         glEnableVertexAttribArray(index);
-        glVertexAttribPointer(index, size, GL_FLOAT, false, stride * Float.BYTES, start * Float.BYTES);
+        glVertexAttribPointer(index, size, GL_FLOAT, false, stride * Float.BYTES, (long) start * Float.BYTES);
     }
 
     /**
@@ -121,9 +121,9 @@ public class VAO {
      * @param start the number of values to offset this attribute from the start of the buffer by
      */
     public void addInstanceArrayAttribute(int buffer, int index, int size, int stride, int start){
-        glBindBuffer(GL_ARRAY_BUFFER, this.INSTANCEBUFFERS[buffer]);
+        glBindBuffer(GL_ARRAY_BUFFER, this.InstanceBuffers[buffer]);
         glEnableVertexAttribArray(index);
-        glVertexAttribPointer(index, size, GL_FLOAT, false, stride * Float.BYTES, start * Float.BYTES);
+        glVertexAttribPointer(index, size, GL_FLOAT, false, stride * Float.BYTES, (long) start * Float.BYTES);
         glVertexAttribDivisor(index, 1);
     }
 

@@ -5,9 +5,9 @@ import java.util.ArrayList;
  * (Bear in mind that openGL uses column major so .transpose() must be called before sending the data to the render program.) 
  */
 public class Matrix {
-    private float[][] matrix;
-    private int rows;
-    private int columns;
+    private final float[][] matrix;
+    private final int rows;
+    private final int columns;
     public Matrix(float[]... values){
         this.matrix = values;
         this.rows = values.length;
@@ -20,14 +20,14 @@ public class Matrix {
      */
     @Override
     public String toString(){
-        String string = "";
+        StringBuilder string = new StringBuilder();
         for(float[] row : matrix){
             for(float column : row){
-                string += column + " ";
+                string.append(column).append(" ");
             }
-            string += "\n";
+            string.append("\n");
         }
-        return string;
+        return string.toString();
     }
 
     
@@ -39,7 +39,7 @@ public class Matrix {
     public Matrix add(Matrix other){
         float[][] result = new float[rows][columns];
         for(int i = 0; i < rows; i++){
-            for(int j = 0; j < columns; i++){
+            for(int j = 0; j < columns; j++){
                 result[i][j] = this.matrix[i][j] + other.matrix[i][j];
             }
         }
@@ -56,16 +56,14 @@ public class Matrix {
         float[][] result = new float[rows][columns];
         for(int row = 0; row < rows; row++){
             for(int column = 0; column < columns; column++){
-                float sum = 0;
+                result[row][column] = 0;
                 for(int i = 0; i < columns; i++){
-                    sum += matrix[row][i] * other.matrix[i][column];
+                    result[row][column] += matrix[row][i] * other.matrix[i][column];
                 }
-                result[row][column] = sum;
             }
         }
         return new Matrix(result);
     }
-
     public Vector multiply(Vector vector){
         if(vector.items.length != this.columns){
             System.err.println("INVALID MATRIX VECTOR MULTIPLICATION ATTEMPTED");
@@ -73,9 +71,6 @@ public class Matrix {
         }
         else{
             float[] items = new float[vector.items.length];
-            for(int i = 0; i < items.length; i++){
-                items[i] = 0;
-            }
             for(int row = 0; row < this.rows; row++){
                 for(int column = 0; column < this.columns; column++){
                     items[row] += this.matrix[row][column] * vector.items[column];
@@ -87,7 +82,7 @@ public class Matrix {
     
     /** 
      * Construct an NxN sized identity matrix
-     * @param rows
+     * @param rows the number of rows for the identity matrix
      * @return Matrix
      */
     public static Matrix Identity(int rows){
@@ -107,9 +102,9 @@ public class Matrix {
     
     /** 
      * Construct a transform matrix for a given 3D translation.
-     * @param x
-     * @param y
-     * @param z
+     * @param x the x translation
+     * @param y the y translation
+     * @param z the z translation
      * @return Matrix
      */
     public static Matrix Translation(float x, float y, float z){
@@ -123,9 +118,9 @@ public class Matrix {
     
     /** 
      * Construct a transform matrix for a given 3D scale.
-     * @param x
-     * @param y
-     * @param z
+     * @param x the x scale factor
+     * @param y the y scale factor
+     * @param z the z scale factor
      * @return Matrix
      */
     public static Matrix Scaling(float x, float y, float z){
@@ -218,9 +213,9 @@ public class Matrix {
     
     /** 
      * Return this matrix multiplied by a transform matrix with a given translation.
-     * @param x
-     * @param y
-     * @param z
+     * @param x the x translation
+     * @param y the y translation
+     * @param z the z translation
      * @return Matrix
      */
     public Matrix translate(float x, float y, float z){
@@ -230,9 +225,9 @@ public class Matrix {
     
     /** 
      * Return this matrix multiplied by a transform matrix with a given rotation.
-     * @param pitch
-     * @param yaw
-     * @param roll
+     * @param pitch the rotation around the x-axis
+     * @param yaw the rotation around the y-axis
+     * @param roll the rotation around the z-axis
      * @return Matrix
      */
     public Matrix rotate(float pitch, float yaw, float roll){
@@ -242,9 +237,9 @@ public class Matrix {
     
     /** 
      * Return this matrix multiplied by a transform matrix with a given scale.
-     * @param x
-     * @param y
-     * @param z
+     * @param x the x scale factor
+     * @param y the y scale factor
+     * @param z the z scale factor
      * @return Matrix
      */
     public Matrix scale(float x, float y, float z){
@@ -257,7 +252,7 @@ public class Matrix {
      * @return float[]
      */
     public float[] toArray(){
-        ArrayList<Float> data = new ArrayList<Float>();
+        ArrayList<Float> data = new ArrayList<>();
         for(int i = 0; i < rows; i++){
             for(int j = 0; j < columns; j++){
                 data.add(matrix[i][j]);

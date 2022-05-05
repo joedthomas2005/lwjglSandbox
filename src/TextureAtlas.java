@@ -1,53 +1,61 @@
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
+
 import static org.lwjgl.opengl.GL33.*;
 import static org.lwjgl.stb.STBImage.*;
 
 public class TextureAtlas {
-    
-    private String path;
-    private int columns;
-    private int rows;
+
+    private final boolean preGenerated;
+    private Matrix[] preGeneratedMatrices;
+    private final String path;
+    private final int columns;
+    private final int rows;
     private int width = 0;
     private int height = 0;
-    private int channels = 0;
-    private int index;
-    private float columnWidth = 0;
-    private float rowHeight = 0;
+    private final float columnWidth;
+    private final float rowHeight;
     private int ID = 0; 
     private ByteBuffer data;
 
-    public TextureAtlas(String path, int numberOfColumns, int numberOfRows, int index){
+    public TextureAtlas(String path, int numberOfColumns, int numberOfRows, boolean preGenerated){
         this.path = path;
         this.columns = numberOfColumns;
         this.rows = numberOfRows;
-        this.index = index;
         this.columnWidth = 1.0f / columns;
         this.rowHeight = 1.0f / rows;
+        this.preGenerated = preGenerated;
     }
 
-    public int load(int shaderProg){
+    public void load(int shaderProgram){
 
         int[] widthB = {0}, heightB = {0}, channelsB = {0};
         stbi_set_flip_vertically_on_load(true);
         data = stbi_load(this.path, widthB, heightB, channelsB, 4);
+        assert data != null;
         data.flip();
         this.width = widthB[0];
         this.height = heightB[0];
-        this.channels = channelsB[0];
 
         ID = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, ID);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
-        glUniform1i(glGetUniformLocation(shaderProg, "aTexture["+(ID)+"]"), ID);
+        glUniform1i(glGetUniformLocation(shaderProgram, "aTexture["+(ID)+"]"), ID);
         
         int err = glGetError();
         if(err != 0){
             System.err.println("ERROR CREATING TEXTURE ATLAS: " + err);
         }
 
-        return ID;
+        if(preGenerated){
+            this.preGeneratedMatrices = new Matrix[rows * columns];
+            for(int i = 0; i < rows * columns; i++){
+                preGeneratedMatrices[i] = calculateMatrix(i);
+            }
+        }
+        else {
+            this.preGeneratedMatrices = new Matrix[]{};
+        }
 
     }
 
@@ -60,7 +68,7 @@ public class TextureAtlas {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     }
 
-    public Matrix getMatrix(int texture){
+    public Matrix calculateMatrix(int texture){
         
         int textureX = texture;
         int textureY = 0;
@@ -70,6 +78,15 @@ public class TextureAtlas {
         }
 
         return Matrix.Translation(textureX * columnWidth, textureY * rowHeight, 0).scale(columnWidth, rowHeight, 1);
+    }
+
+    public Matrix getMatrix(int texture){
+        if(preGenerated){
+            return preGeneratedMatrices[texture];
+        }
+        else{
+            return calculateMatrix(texture);
+        }
     }
 
     public int getID(){

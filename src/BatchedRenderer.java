@@ -2,14 +2,15 @@ import java.util.ArrayList;
 import static org.lwjgl.opengl.GL33.*;
 
 public class BatchedRenderer {
-    private final int VERTEXLENGTH = 5;
-    private final int VERTSPEROBJECT;
-    private VAO vao;
+    private final int VertexLength = 5;
+    private final int VerticesPerObject;
+    private final int IndicesPerObject;
+    private final VAO vao;
     private TextureAtlas textureSheet;
-    private ArrayList<GameObject> objects = new ArrayList<GameObject>();
+    private final ArrayList<GameObject> objects = new ArrayList<>();
     private final float[] vertices;
-    private ArrayList<Float> VBOdata = new ArrayList<Float>();
-    private ArrayList<Integer> EBOdata = new ArrayList<Integer>();
+    private final ArrayList<Float> VBOdata = new ArrayList<>();
+    private int[] EBOdata = new int[]{};
     private final int[] indices;
     private boolean objectsUpdated;
 
@@ -17,13 +18,14 @@ public class BatchedRenderer {
         objectsUpdated = false;
         this.vertices = vertices;
         this.indices = indices;
-        this.VERTSPEROBJECT = vertices.length / VERTEXLENGTH;
+        this.VerticesPerObject = vertices.length / VertexLength;
+        this.IndicesPerObject = indices.length;
         this.vao = new VAO(new float[]{}, new int[]{}, 0);
         vao.use();
         vao.uploadVertexData(GL_DYNAMIC_DRAW);
-        vao.addVertexArrayAttribute(0, 2, VERTEXLENGTH, 0); //coordinates
-        vao.addVertexArrayAttribute(1, 2, VERTEXLENGTH, 2); //texture coordinates
-        vao.addVertexArrayAttribute(2, 1, VERTEXLENGTH, 4); //texture map
+        vao.addVertexArrayAttribute(0, 2, VertexLength, 0); //coordinates
+        vao.addVertexArrayAttribute(1, 2, VertexLength, 2); //texture coordinates
+        vao.addVertexArrayAttribute(2, 1, VertexLength, 4); //texture map
         vao.uploadIndexData(GL_DYNAMIC_DRAW);
         
         int err = glGetError();
@@ -64,64 +66,37 @@ public class BatchedRenderer {
             VBOdata.clear();
             for(GameObject object : objects){
 
-                ArrayList<float[]> vertices = new ArrayList<float[]>();
-                for(int i = 0; i < VERTSPEROBJECT; i++){
-                    float[] vertexData = new float[VERTEXLENGTH];
-                    for(int j = 0; j < VERTEXLENGTH; j++){
-                        vertexData[j] = this.vertices[i * VERTEXLENGTH + j];
+                ArrayList<float[]> vertices = new ArrayList<>();
+                for(int i = 0; i < VerticesPerObject; i++){
+                    float[] vertexData = new float[VertexLength];
+                    for(int j = 0; j < VertexLength; j++){
+                        vertexData[j] = this.vertices[i * VertexLength + j];
                     }
                     vertices.add(vertexData);
                 }
 
-                ArrayList<Vector> transformVectors = new ArrayList<Vector>();
-                ArrayList<Vector> textureVectors = new ArrayList<Vector>();
+                ArrayList<Vector> transformVectors = new ArrayList<>();
+                ArrayList<Vector> textureVectors = new ArrayList<>();
 
-                for(float[] vertex : vertices){
+                for(float[] vertex : vertices) {
                     transformVectors.add(Vector.Vec2(vertex[0], vertex[1]));
                     textureVectors.add(Vector.Vec2(vertex[2], vertex[3]));
                 }
 
-                for(int v = 0; v < transformVectors.size(); v++){
-                    transformVectors.set(v, object.getTransform().multiply(transformVectors.get(v)));
-                    System.out.println(transformVectors.get(v));
-                }
+                transformVectors.replaceAll(vector -> object.getTransform().multiply(vector));
+                textureVectors.replaceAll(vector -> object.getTextureAtlas().getMatrix(object.getTexture()).multiply(vector));
 
-                for(int v = 0; v < textureVectors.size(); v++){
-                    textureVectors.set(v, object.getTextureAtlas().getMatrix(object.getTexture()).multiply(textureVectors.get(v)));
-                }
-
-                for(int i = 0; i < VERTSPEROBJECT; i++){
+                for(int i = 0; i < VerticesPerObject; i++){
                     VBOdata.add(transformVectors.get(i).getX());
                     VBOdata.add(transformVectors.get(i).getY());
                     VBOdata.add(textureVectors.get(i).getX());
                     VBOdata.add(textureVectors.get(i).getY());
-
                     VBOdata.add((float)object.getTextureAtlas().getID());
                 }
-                
-                // for(int i = 1; i < vertices.length; i+=2){
-                //     vectors.add(Vector.Vec2(vertices[i-1], vertices[i]));
-                // }
-                // for(int i = 0; i < vectors.size(); i++){
-                //     Vector transformedVector;
-                //     if(i % 2 == 0){
-                //         transformedVector = object.getTransform().multiply(vectors.get(i));
-                //     }
-                //     else{
-                //         transformedVector = textureSheet.getMatrix(object.getTexture()).multiply(vectors.get(i));
-                //     }
-                //     vectors.set(i, transformedVector);
-                // }
 
-                // for(Vector v : vectors){
-                //     VBOdata.add(v.getX());
-                //     VBOdata.add(v.getY());
-                // }
                 object.updated = false;
             }
-            // for(float f : VBOdata){
-            //     System.out.print(f + ", ");
-            // }
+
             System.out.println("\n");
             uploadVertexData();
         }
@@ -129,12 +104,12 @@ public class BatchedRenderer {
 
     private void updateIndexData(){
         if(objectsUpdated){
-            this.EBOdata.clear();
             int objectCount = this.objects.size();
+            this.EBOdata = new int[objectCount * IndicesPerObject];
             for(int i = 0; i < objectCount; i++){
-                int offset = i * VERTSPEROBJECT;
-                for(int index : this.indices){
-                    EBOdata.add(index + offset);
+                int offset = i * VerticesPerObject;
+                for(int j = 0; j < IndicesPerObject; j++){
+                    EBOdata[i * IndicesPerObject + j] = this.indices[j] + offset;
                 }
             }
             objectsUpdated = false;
@@ -143,20 +118,17 @@ public class BatchedRenderer {
     }
 
     private void uploadIndexData(){
-        int[] EBOarray = new int[EBOdata.size()];
-        for(int i = 0; i < EBOdata.size(); i++){
-            EBOarray[i] = EBOdata.get(i);
-        }
-        vao.setIndexArrayData(EBOarray);
+        vao.setIndexArrayData(EBOdata);
         vao.uploadIndexData(GL_DYNAMIC_DRAW);
     }
 
     private void uploadVertexData(){
-        float[] VBOarray = new float[VBOdata.size()];
+        float[] VBOArray = new float[VBOdata.size()];
         for(int i = 0; i < VBOdata.size(); i++){
-            VBOarray[i] = VBOdata.get(i);
+            VBOArray[i] = VBOdata.get(i);
         }
-        vao.setVertexArrayData(VBOarray);
+
+        vao.setVertexArrayData(VBOArray);
         vao.uploadVertexData(GL_DYNAMIC_DRAW);
     }
 
