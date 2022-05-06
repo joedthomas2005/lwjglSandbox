@@ -27,7 +27,7 @@ public class TextureAtlas {
     }
 
     public void load(int shaderProgram){
-
+        glGetError();
         int[] widthB = {0}, heightB = {0}, channelsB = {0};
         stbi_set_flip_vertically_on_load(true);
         data = stbi_load(this.path, widthB, heightB, channelsB, 4);

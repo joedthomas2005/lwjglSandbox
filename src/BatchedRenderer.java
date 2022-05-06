@@ -132,7 +132,14 @@ public class BatchedRenderer {
         vao.uploadVertexData(GL_DYNAMIC_DRAW);
     }
 
-    public void drawAll(){
+    /**
+     * Draw all objects created by this renderer.
+     * @param rebind whether to rebind the internal vertex attribute array. Set this to true if you are using multiple renderers.
+     */
+    public void drawAll(boolean rebind){
+        if(rebind){
+            vao.use();
+        }
         updateVertexData();
         updateIndexData();
         vao.drawIndexed();

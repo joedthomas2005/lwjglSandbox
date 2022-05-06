@@ -10,16 +10,20 @@ import static org.lwjgl.opengl.GL33.*;
 public class OrthoCamera2D {
     private Matrix view;
     private final Matrix projection;
-    private int viewLocation;
-    private int projectionLocation;
+    private int[] viewLocations;
+    private int[] projectionLocations;
     private float x, y;
     private boolean updated;
 
-    public OrthoCamera2D(float x, float y, float width, float height, int shaderProg){
+    public OrthoCamera2D(float x, float y, float width, float height, int... shaderPrograms){
         this.view = Matrix.Translation(-x, -y, 0);
         this.projection = Matrix.Ortho(0, width, 0, height, -1, 1);
-        this.viewLocation = glGetUniformLocation(shaderProg, "view");
-        this.projectionLocation = glGetUniformLocation(shaderProg, "projection");
+        this.viewLocations = new int[shaderPrograms.length];
+        this.projectionLocations = new int[shaderPrograms.length];
+        for(int i = 0; i < shaderPrograms.length; i++) {
+            this.viewLocations[i] = glGetUniformLocation(shaderPrograms[i], "view");
+            this.projectionLocations[i] = glGetUniformLocation(shaderPrograms[i], "projection");
+        }
         this.updated = true;
     }
 
@@ -61,7 +65,7 @@ public class OrthoCamera2D {
     public void uploadViewUniform(){
         if(updated){
             System.out.println("Updating Matrix Uniforms");
-            glUniformMatrix4fv(viewLocation, true, view.toArray());
+            for(int shader : viewLocations) glUniformMatrix4fv(shader, true, view.toArray());
             updated = false;
         }
     }
@@ -71,6 +75,7 @@ public class OrthoCamera2D {
      * You should only have to do this once. 
      */
     public void uploadProjectionUniform(){
-        glUniformMatrix4fv(projectionLocation, true, projection.toArray());
+        glGetError();
+        for(int shader : projectionLocations) glUniformMatrix4fv(shader, true, projection.toArray());
     }
 }

@@ -5,6 +5,13 @@ lib/*
 .idea/*
 .vscode/
 .vscode/*
+lwjglSandbox.iml
+out/
+out/*
+.idea/
+.idea/*
+.vscode/
+.vscode/*
 out/
 out/*
 lwjglSandbox.iml
