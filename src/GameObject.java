@@ -170,5 +170,18 @@ public class GameObject {
         .rotate(0, 0, rot)
         .scale(width, height, 1);
     }
+
+    public boolean willCollide(GameObject other, float x, float y, float otherX, float otherY){
+        return detectCollision(
+                this.x + x, this.y + y, this.width, this.height,
+                other.getX() + otherX, other.getY() + otherY, other.getWidth(), other.getHeight());
+    }
+    public boolean isColliding(GameObject other){
+        return detectCollision(this.x, this.y, this.width, this.height, other.getX(), other.getY(), other.getWidth(), other.getHeight());
+    }
+
+    private boolean detectCollision(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2){
+        return x1 + w1/2.0f > x2 - w2/2.0f && x1 - w1/2.0f < x2 + w2/2.0f && y1 + h1/2.0f > y2 - h2/2.0f && y1 - h1/2.0f < y2 + h2/2.0f;
+    }
     
 }

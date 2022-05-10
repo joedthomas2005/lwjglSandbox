@@ -10,12 +10,9 @@ public class TextureAtlas {
     private final String path;
     private final int columns;
     private final int rows;
-    private int width = 0;
-    private int height = 0;
     private final float columnWidth;
     private final float rowHeight;
-    private int ID = 0; 
-    private ByteBuffer data;
+    private int ID = 0;
 
     public TextureAtlas(String path, int numberOfColumns, int numberOfRows, boolean preGenerated){
         this.path = path;
@@ -30,16 +27,15 @@ public class TextureAtlas {
         glGetError();
         int[] widthB = {0}, heightB = {0}, channelsB = {0};
         stbi_set_flip_vertically_on_load(true);
-        data = stbi_load(this.path, widthB, heightB, channelsB, 4);
+        ByteBuffer data = stbi_load(this.path, widthB, heightB, channelsB, 4);
         assert data != null;
         data.flip();
-        this.width = widthB[0];
-        this.height = heightB[0];
+        int width = widthB[0];
+        int height = heightB[0];
         ID = glGenTextures();
-
+        glActiveTexture(GL_TEXTURE0 + ID);
         glBindTexture(GL_TEXTURE_2D, ID);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
         glGenerateMipmap(GL_TEXTURE_2D);
         glUniform1i(glGetUniformLocation(shaderProgram, "aTexture["+(ID)+"]"), ID);
@@ -61,15 +57,9 @@ public class TextureAtlas {
 
     }
 
-    public void bind(){
-        glActiveTexture(GL_TEXTURE0 + ID);
-        glBindTexture(GL_TEXTURE_2D, ID);
+    public int texCount(){
+        return this.rows * this.columns;
     }
-    public void use(){
-        glBindTexture(GL_TEXTURE_2D, ID);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    }
-
     public Matrix calculateMatrix(int texture){
         
         int textureX = texture;

@@ -24,6 +24,7 @@ public class ShaderProgram {
         this.fragPath = fragmentShaderPath;
         this.fallbackVertexPath = vertexPath.substring(0, vertexPath.length() - 6).concat("Fallback.vert");
         this.fallbackFragmentPath = fragPath.substring(0, fragPath.length() - 6).concat("Fallback.frag");
+        this.create();
     }
 
     public ShaderProgram(String renderType){
@@ -31,6 +32,7 @@ public class ShaderProgram {
         this.fallbackVertexPath = renderType + "VertShaderFallback.vert";
         this.fragPath = renderType + "FragShader.frag";
         this.fallbackFragmentPath = renderType + "FragShaderFallback.frag";
+        this.create();
     }
 
     public ShaderProgram(String vertexShaderPath, String fragmentShaderPath, String fallbackVertexPath, String fallbackFragmentPath){
@@ -38,6 +40,7 @@ public class ShaderProgram {
         this.fragPath = fragmentShaderPath;
         this.fallbackFragmentPath = fallbackFragmentPath;
         this.fallbackVertexPath = fallbackVertexPath;
+        this.create();
     }
     /**
      * Create an openGL shader program.

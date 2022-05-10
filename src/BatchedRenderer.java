@@ -96,8 +96,6 @@ public class BatchedRenderer {
 
                 object.updated = false;
             }
-
-            System.out.println("\n");
             uploadVertexData();
         }
     }
@@ -134,10 +132,10 @@ public class BatchedRenderer {
 
     /**
      * Draw all objects created by this renderer.
-     * @param rebind whether to rebind the internal vertex attribute array. Set this to true if you are using multiple renderers.
+     * @param rebindVAO whether to rebind the internal vertex attribute array. Set this to true if you are using multiple renderers.
      */
-    public void drawAll(boolean rebind){
-        if(rebind){
+    public void drawAll(boolean rebindVAO){
+        if(rebindVAO){
             vao.use();
         }
         updateVertexData();
