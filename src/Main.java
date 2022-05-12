@@ -26,7 +26,9 @@ class Main{
         camera.uploadProjectionUniform();
 
         TextureAtlas texAtlas = new TextureAtlas("resources/numbers.png", 2, 2, true);
+        TextureAtlas michael = new TextureAtlas("resources/download.png", 2, 2, true);
         texAtlas.load(shader.getID());
+        michael.load(shader.getID());
 
         BatchedRenderer squareRenderer = BatchedRenderer.SquareRenderer();
         GameObject square = squareRenderer.create(window.getWidth() / 2.0f, window.getHeight() / 2.0f, 0, 200, 200, 0, texAtlas);
@@ -52,7 +54,18 @@ class Main{
                     animator.startAnimation("count34");
                 }
             }
+            if(Input.keyPressedDown(GLFW_KEY_LEFT_SHIFT)){
+                square.setTextureAtlas(michael);
+            }
 
+            if(Input.keyPressedDown(GLFW_KEY_P)){
+                if(animator.isPlaying("count12")){
+                    animator.pauseAnimation("count12");
+                }
+                else{
+                    animator.resumeAnimation("count12");
+                }
+            }
             if(Input.keyPressedDown(GLFW_KEY_ESCAPE)){
                 window.close();
             }

@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Animator {
@@ -15,7 +14,7 @@ public class Animator {
     public void startAnimation(String name){
         for(Animation anim : animations.values()){
             if(anim.isPlaying() && anim.getObject() == animations.get(name).getObject()){
-                System.out.println("WARNING: ANIMATION ALREADY PLAYING. INTERRUPTING.");
+//                System.out.println("WARNING: ANIMATION ALREADY PLAYING. INTERRUPTING.");
                 anim.stop();
                 break;
             }
@@ -30,6 +29,60 @@ public class Animator {
         }
     }
 
+    public void pauseAnimation(String name){
+        this.animations.get(name).pause();
+    }
+
+    public void resumeAnimation(String name){
+        this.animations.get(name).resume(time);
+    }
+
+    public void pauseAnimations(){
+        for(Animation anim : animations.values()){
+            anim.pause();
+        }
+    }
+
+    public void resumeAnimations(){
+        for(Animation anim : animations.values()){
+            anim.resume(time);
+        }
+    }
+
+    public void pauseAnimations(String... names){
+        for(String name : names) {
+            animations.get(name).pause();
+        }
+    }
+
+    public void resumeAnimations(String... names){
+        for(String name : names){
+            animations.get(name).resume(time);
+        }
+    }
+    public void stopAnimations(){
+        for(Animation anim : animations.values()){
+            anim.stop();
+        }
+    }
+
+    public void startAnimations(){
+        for(Animation anim : animations.values()){
+            anim.start(time);
+        }
+    }
+
+    public void stopAnimations(String... names){
+        for(String name : names){
+            animations.get(name).stop();
+        }
+    }
+
+    public void startAnimations(String... names){
+        for(String name : names){
+            animations.get(name).start(time);
+        }
+    }
     public void stopAnimation(String name){
         this.animations.get(name).stop();
     }
