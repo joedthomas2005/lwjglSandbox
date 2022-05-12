@@ -10,8 +10,8 @@ import static org.lwjgl.opengl.GL33.*;
 public class OrthoCamera2D {
     private Matrix view;
     private final Matrix projection;
-    private int[] viewLocations;
-    private int[] projectionLocations;
+    private final int[] viewLocations;
+    private final int[] projectionLocations;
     private float x, y;
     private boolean updated;
 
@@ -30,8 +30,8 @@ public class OrthoCamera2D {
     
     /** 
      * Move the camera. (translate everything else by the inverse)
-     * @param x
-     * @param y
+     * @param x the amount to translate in the x direction
+     * @param y the amount to translate in the y direction
      */
     public void move(float x, float y){
         this.x -= x;
@@ -64,7 +64,6 @@ public class OrthoCamera2D {
      */
     public void uploadViewUniform(){
         if(updated){
-            System.out.println("Updating Matrix Uniforms");
             for(int shader : viewLocations) glUniformMatrix4fv(shader, true, view.toArray());
             updated = false;
         }

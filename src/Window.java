@@ -15,7 +15,7 @@ public class Window {
     private final int swapInterval;
     private final String title;
     private long windowHandle = 0L;
-    private long monitorHandle = 0L;
+    private long monitorHandle;
     private final float r;
     private final float g;
     private final float b;
@@ -30,15 +30,23 @@ public class Window {
         this.r = r;
         this.g = g;
         this.b = b;
-        if (fullscreen) {
-            this.monitorHandle = glfwGetPrimaryMonitor();
-        }
+        this.monitorHandle = 0;
     }
 
     /**
      * Create the glfw window and context and load GLCapabilities.
      */
     public void create() {
+        glfwInit();
+
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+        if(fullscreen){
+            this.monitorHandle = glfwGetPrimaryMonitor();
+        }
+
         this.windowHandle = glfwCreateWindow(this.width, this.height, this.title, this.monitorHandle, 0);
         
         if (this.windowHandle == 0) {

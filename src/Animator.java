@@ -7,8 +7,13 @@ public class Animator {
         this.time = 0;
     }
 
-    public void addAnimation(Animation animation, String name){
+    public void addAnimation(String name, Animation animation){
         this.animations.put(name, animation);
+    }
+
+    public void addAnimation(String name, GameObject object, float interval, int start, int end){
+        Animation anim = new Animation(object, interval, start, end);
+        this.animations.put(name, anim);
     }
 
     public void startAnimation(String name){
@@ -30,61 +35,90 @@ public class Animator {
     }
 
     public void pauseAnimation(String name){
-        this.animations.get(name).pause();
+        Animation anim = animations.get(name);
+        if(anim.isPlaying()){
+            anim.pause();
+        }
     }
 
     public void resumeAnimation(String name){
-        this.animations.get(name).resume(time);
+        Animation anim = animations.get(name);
+        if(!anim.isPlaying()){
+            anim.resume(time);
+        }
     }
 
     public void pauseAnimations(){
         for(Animation anim : animations.values()){
-            anim.pause();
+            if(anim.isPlaying()){
+                anim.pause();
+            }
         }
     }
 
     public void resumeAnimations(){
         for(Animation anim : animations.values()){
-            anim.resume(time);
+            if(!anim.isPlaying()) {
+                anim.resume(time);
+            }
         }
     }
 
     public void pauseAnimations(String... names){
         for(String name : names) {
-            animations.get(name).pause();
+            Animation anim = animations.get(name);
+            if(anim.isPlaying()){
+                anim.pause();
+            }
         }
     }
 
     public void resumeAnimations(String... names){
         for(String name : names){
-            animations.get(name).resume(time);
+            Animation anim = animations.get(name);
+            if(!anim.isPlaying()){
+                anim.resume(time);
+            }
         }
     }
     public void stopAnimations(){
         for(Animation anim : animations.values()){
-            anim.stop();
+            if(anim.isPlaying()) {
+                anim.stop();
+            }
         }
     }
 
     public void startAnimations(){
         for(Animation anim : animations.values()){
-            anim.start(time);
+            if(!anim.isPlaying()) {
+                anim.start(time);
+            }
         }
     }
 
     public void stopAnimations(String... names){
         for(String name : names){
-            animations.get(name).stop();
+            Animation anim = animations.get(name);
+            if(anim.isPlaying()){
+                anim.stop();
+            }
         }
     }
 
     public void startAnimations(String... names){
         for(String name : names){
-            animations.get(name).start(time);
+            Animation anim = animations.get(name);
+            if(!anim.isPlaying()){
+                anim.start(time);
+            }
         }
     }
     public void stopAnimation(String name){
-        this.animations.get(name).stop();
+        Animation anim = animations.get(name);
+        if(anim.isPlaying()){
+            anim.stop();
+        }
     }
 
     public boolean isPlaying(String name){

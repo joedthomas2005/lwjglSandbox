@@ -8,12 +8,6 @@ import java.util.ArrayList;
 
 class Main{
     public static void main(String[] args){
-        
-        glfwInit();
-
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         Window window = new Window(1366, 768, "window", false, 2, 1.0f, 1.0f, 1.0f);
         window.create();
@@ -34,38 +28,15 @@ class Main{
         GameObject square = squareRenderer.create(window.getWidth() / 2.0f, window.getHeight() / 2.0f, 0, 200, 200, 0, texAtlas);
 
         Animator animator = new Animator();
-        animator.addAnimation(new Animation(square, 1, 0, 2), "count12");
-        animator.addAnimation(new Animation(square, 1, 2, 4), "count34");
-        double time;
+
         double lastTime = glfwGetTime();
-        boolean generating = false;
-        int objCount = 0;
+
         while(!window.shouldClose()){
             glClear(GL_COLOR_BUFFER_BIT);
-            time = glfwGetTime();
+            double time = glfwGetTime();
             float delta = (float) (time - lastTime);
             animator.animate(time);
 
-            if(Input.keyPressedDown(GLFW_KEY_SPACE)){
-                if(animator.isPlaying("count34")){
-                    animator.startAnimation("count12");
-                }
-                else {
-                    animator.startAnimation("count34");
-                }
-            }
-            if(Input.keyPressedDown(GLFW_KEY_LEFT_SHIFT)){
-                square.setTextureAtlas(michael);
-            }
-
-            if(Input.keyPressedDown(GLFW_KEY_P)){
-                if(animator.isPlaying("count12")){
-                    animator.pauseAnimation("count12");
-                }
-                else{
-                    animator.resumeAnimation("count12");
-                }
-            }
             if(Input.keyPressedDown(GLFW_KEY_ESCAPE)){
                 window.close();
             }
