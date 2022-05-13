@@ -1,12 +1,12 @@
-import org.w3c.dom.Text;
-
 /**
  * An abstract thing with spacial position, rotation and size and a texture from an atlas.
  * It contains a transform matrix.
  */
 public class GameObject {
-    
+    private static int objectCount = 0;
+    private final int id;
     private Matrix transform;
+    private Vector frameTranslation;
     private int texture;
     private TextureAtlas textureAtlas;
     public boolean updated;
@@ -20,12 +20,15 @@ public class GameObject {
         this.width = width;
         this.height = height;
         this.updated = true;
+        this.frameTranslation = new Vector(0, 0);
         this.transform = Matrix.Identity(4)
             .translate(x, y, 0)
             .rotate(0, 0, rot)
             .scale(width, height, 1);
         this.texture = texture;
         this.textureAtlas = textureAtlas;
+        this.id = objectCount;
+        objectCount++;
     }
 
     
@@ -74,6 +77,29 @@ public class GameObject {
         this.updated = true;
     }
 
+
+    public void moveForward(float amount){
+        Vector movement = new Vector(this.rot, amount);
+        this.x += movement.getX();
+        this.y += movement.getY();
+        this.updated = true;
+    }
+
+    public void moveDirection(float direction, float amount){
+        Vector movement = new Vector(direction, amount);
+        this.x += movement.getX();
+        this.y += movement.getY();
+        this.updated = true;
+
+    }
+
+    public void moveNormalised(float x, float y, float magnitude){
+        Vector movement = Vector.Vec2(x, y);
+        Vector normalised = new Vector(movement.getDirection2D(), magnitude);
+        this.x += normalised.getX();
+        this.y += normalised.getY();
+        this.updated = true;
+    }
     /**
      * Apply a vector translation to this object's position and set its update flag to true.
      * Does not regenerate the transform matrix.
@@ -91,6 +117,33 @@ public class GameObject {
     public void rotate(float rot){
         this.rot -= rot;
         this.updated = true;
+    }
+
+
+    /**
+     * Generate this object's internal transform matrix.
+     */
+    public void generateMatrix(){
+        this.x += frameTranslation.getX();
+        this.y += frameTranslation.getY();
+        this.transform = Matrix.Identity(4)
+        .translate(x, y, 0)
+        .rotate(0, 0, rot)
+        .scale(width, height, 1);
+        this.frameTranslation = Vector.Vec2(0, 0);
+    }
+
+    public boolean willCollide(GameObject other, float x, float y, float otherX, float otherY){
+        return detectCollision(
+                this.x + x, this.y + y, this.width, this.height,
+                other.getX() + otherX, other.getY() + otherY, other.getWidth(), other.getHeight());
+    }
+    public boolean isColliding(GameObject other){
+        return detectCollision(this.x, this.y, this.width, this.height, other.getX(), other.getY(), other.getWidth(), other.getHeight());
+    }
+
+    private boolean detectCollision(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2){
+        return x1 + w1/2.0f > x2 - w2/2.0f && x1 - w1/2.0f < x2 + w2/2.0f && y1 + h1/2.0f > y2 - h2/2.0f && y1 - h1/2.0f < y2 + h2/2.0f;
     }
 
     /**
@@ -132,15 +185,15 @@ public class GameObject {
     public void setRot(float rot){
         this.rot = rot;
     }
-    
-    /** 
+
+    /**
      * @return the object's current y position (float)
      */
     public float getY(){
         return this.y;
     }
-    
-    /** 
+
+    /**
      * @return the object's current x position (float)
      */
     public float getX(){
@@ -161,27 +214,4 @@ public class GameObject {
         return this.width;
     }
 
-    /**
-     * Generate this object's internal transform matrix.
-     */
-    public void generateMatrix(){
-        this.transform = Matrix.Identity(4)
-        .translate(x, y, 0)
-        .rotate(0, 0, rot)
-        .scale(width, height, 1);
-    }
-
-    public boolean willCollide(GameObject other, float x, float y, float otherX, float otherY){
-        return detectCollision(
-                this.x + x, this.y + y, this.width, this.height,
-                other.getX() + otherX, other.getY() + otherY, other.getWidth(), other.getHeight());
-    }
-    public boolean isColliding(GameObject other){
-        return detectCollision(this.x, this.y, this.width, this.height, other.getX(), other.getY(), other.getWidth(), other.getHeight());
-    }
-
-    private boolean detectCollision(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2){
-        return x1 + w1/2.0f > x2 - w2/2.0f && x1 - w1/2.0f < x2 + w2/2.0f && y1 + h1/2.0f > y2 - h2/2.0f && y1 - h1/2.0f < y2 + h2/2.0f;
-    }
-    
 }
